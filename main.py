@@ -17,14 +17,10 @@ def predict_rub_salary_hh(vacancy):
     salary_info = vacancy["salary"]
     if salary_info["currency"] == "RUR":
         return predict_salary(salary_info["from"], salary_info["to"])
-    else:
-        return None
 
 def predict_rub_salary_sj(vacancy):
     if vacancy["currency"] == "rub":
         return predict_salary(vacancy["payment_from"], vacancy["payment_to"])
-    else:
-        return None
 
 def get_average_salary(vacancies, service):
     salaries_amount = 0
