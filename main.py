@@ -1,4 +1,5 @@
-import requests, os
+import requests
+import os
 from terminaltables import AsciiTable
 from dotenv import load_dotenv
 
@@ -13,14 +14,17 @@ def predict_salary(salary_from, salary_to):
     else:
         return int((salary_from + salary_to) / 2)
 
+
 def predict_rub_salary_hh(vacancy):
     salary_info = vacancy["salary"]
     if salary_info["currency"] == "RUR":
         return predict_salary(salary_info["from"], salary_info["to"])
 
+
 def predict_rub_salary_sj(vacancy):
     if vacancy["currency"] == "rub":
         return predict_salary(vacancy["payment_from"], vacancy["payment_to"])
+
 
 def get_average_salary(vacancies, service):
     salaries_amount = 0
@@ -39,6 +43,7 @@ def get_average_salary(vacancies, service):
     average_salary = int(salaries_amount / vacancies_processed)
 
     return average_salary, vacancies_processed
+
 
 def get_language_vacancies_hh(language):
     vacancies = []
@@ -62,13 +67,14 @@ def get_language_vacancies_info_hh(language):
 
     average_salary, vacancies_processed = get_average_salary(vacancies, "hh")
 
-    language_vacancies_info = { 
+    language_vacancies_info = {
         "vacancies_found": vacancies_found,
         "vacancies_processed": vacancies_processed,
         "average_salary": average_salary
     }
 
     return language_vacancies_info
+
 
 def get_languages_vacancies_info_hh(languages):
     languages_vacancies_info_hh = dict()
@@ -92,24 +98,30 @@ def get_language_vacancies_sj(language):
         headers = {
             "X-Api-App-Id": os.getenv("X-API-APP-ID")
         }
-        response = requests.get("https://api.superjob.ru/2.0/vacancies/", params=params, headers=headers)
+        response = requests.get(
+            "https://api.superjob.ru/2.0/vacancies/",
+            params=params,
+            headers=headers
+        )
         response.raise_for_status()
 
         vacancies += response.json()["objects"]
     return vacancies, response.json()["total"]
+
 
 def get_language_vacancies_info_sj(language):
     vacancies, vacancies_found = get_language_vacancies_sj(language)
 
     average_salary, vacancies_processed = get_average_salary(vacancies, "sj")
 
-    language_vacancies_info = { 
+    language_vacancies_info = {
         "vacancies_found": vacancies_found,
         "vacancies_processed": vacancies_processed,
         "average_salary": average_salary
     }
 
     return language_vacancies_info
+
 
 def get_languages_vacancies_info_sj(languages):
     languages_vacancies_info_sj = dict()
@@ -119,25 +131,61 @@ def get_languages_vacancies_info_sj(languages):
 
     return languages_vacancies_info_sj
 
+
 def get_table_data(languages_vacancies_info):
-    table_data = [["Язык программирования", "Вакансий найдено", "Вакансий обработано", "Средняя зарплата"]]
+    table_data = [
+        [
+            "Язык программирования",
+            "Вакансий найдено",
+            "Вакансий обработано",
+            "Средняя зарплата"
+        ]
+    ]
     for language, language_info in languages_vacancies_info.items():
-        row = [language, language_info["vacancies_found"], language_info["vacancies_processed"], language_info["average_salary"]]
+        row = [
+            language,
+            language_info["vacancies_found"],
+            language_info["vacancies_processed"],
+            language_info["average_salary"]
+        ]
         table_data.append(row)
     return table_data
 
+
 def main():
-    programming_languages = ["JavaScript", "Java", "Python", "Ruby", "PHP", "C++", "C#", "C", "Go", "Shell", "Objective-C", "Scala", "Swift", "TypeScript"]
     load_dotenv()
+
+    programming_languages = [
+        "JavaScript",
+        "Java",
+        "Python",
+        "Ruby",
+        "PHP",
+        "C++", "C#",
+        "C",
+        "Go",
+        "Shell",
+        "Objective-C",
+        "Scala",
+        "Swift",
+        "TypeScript"
+    ]
 
     languages_vacancies_info_hh = get_languages_vacancies_info_hh(programming_languages)
     languages_vacancies_info_sj = get_languages_vacancies_info_sj(programming_languages)
 
-    hh_table = AsciiTable(get_table_data(languages_vacancies_info_hh), "HeadHunter Moscow")
+    hh_table = AsciiTable(
+        get_table_data(languages_vacancies_info_hh),
+        "HeadHunter Moscow"
+    )
     print(hh_table.table)
 
-    sj_table = AsciiTable(get_table_data(languages_vacancies_info_sj), "SuperJob Moscow")
+    sj_table = AsciiTable(
+        get_table_data(languages_vacancies_info_sj),
+        "SuperJob Moscow"
+    )
     print(sj_table.table)
+
 
 if __name__ == "__main__":
     main()
