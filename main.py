@@ -1,9 +1,7 @@
 import requests, os
 from terminaltables import AsciiTable
 from dotenv import load_dotenv
-load_dotenv()
 
-X_API_APP_ID = os.getenv("X-API-APP-ID")
 
 def predict_salary(salary_from, salary_to):
     if salary_from == 0 and salary_to == 0:
@@ -84,9 +82,8 @@ def get_languages_vacancies_info_hh(languages):
 
     return languages_vacancies_info_hh
 
-def get_language_vacancies_sj(language):
-    global X_API_APP_ID
 
+def get_language_vacancies_sj(language):
     vacancies = []
     for page_number in range(0, 5):
         params = {
@@ -97,7 +94,7 @@ def get_language_vacancies_sj(language):
             "keyword": language
         }
         headers = {
-            "X-Api-App-Id": X_API_APP_ID
+            "X-Api-App-Id": os.getenv("X-API-APP-ID")
         }
         response = requests.get("https://api.superjob.ru/2.0/vacancies/", params=params, headers=headers)
         response.raise_for_status()
@@ -135,6 +132,7 @@ def get_table_data(languages_vacancies_info):
 
 def main():
     programming_languages = ["JavaScript", "Java", "Python", "Ruby", "PHP", "C++", "C#", "C", "Go", "Shell", "Objective-C", "Scala", "Swift", "TypeScript"]
+    load_dotenv()
 
     languages_vacancies_info_hh = get_languages_vacancies_info_hh(programming_languages)
     languages_vacancies_info_sj = get_languages_vacancies_info_sj(programming_languages)
